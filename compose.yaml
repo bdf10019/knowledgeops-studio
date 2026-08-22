@@ -1,0 +1,87 @@
+name: knowledgeops-studio
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_DB: knowledgeops
+      POSTGRES_USER: knowledgeops
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-knowledgeops-local}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infra/postgres-init.sql:/docker-entrypoint-initdb.d/00-vector.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U knowledgeops -d knowledgeops"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  redis:
+    image: redis:8-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  api:
+    build: .
+    environment: &app-environment
+      KNOWLEDGEOPS_ENVIRONMENT: compose
+      KNOWLEDGEOPS_CONTENT_ROOT: /app
+      KNOWLEDGEOPS_DATABASE_URL: postgresql+psycopg://knowledgeops:${POSTGRES_PASSWORD:-knowledgeops-local}@postgres:5432/knowledgeops
+      KNOWLEDGEOPS_REDIS_URL: redis://redis:6379/0
+      KNOWLEDGEOPS_ALLOWED_ORIGINS: http://localhost:8080
+      KNOWLEDGEOPS_DEMO_MODE: "true"
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 10s
+      timeout: 4s
+      retries: 12
+
+  worker:
+    build: .
+    command: ["knowledgeops", "worker"]
+    environment: *app-environment
+    depends_on:
+      api:
+        condition: service_healthy
+
+  web:
+    build: ./frontend
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+
+  n8n:
+    image: n8nio/n8n:2.30.5
+    profiles: ["automation"]
+    environment:
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-change-this-local-demo-key}
+      N8N_SECURE_COOKIE: "false"
+      N8N_HOST: localhost
+      WEBHOOK_URL: http://localhost:5678/
+    volumes:
+      - n8n-data:/home/node/.n8n
+    ports:
+      - "5678:5678"
+
+volumes:
+  postgres-data:
+  redis-data:
+  n8n-data:

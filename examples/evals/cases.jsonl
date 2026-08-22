@@ -1,0 +1,6 @@
+{"name":"access-request","question":"存取知識集合需要哪些核准與處理步驟？","expected_terms":["主管核准","集合負責人","平台管理者"],"should_answer":true}
+{"name":"access-revoke","question":"人員調職後，舊權限多久內要撤銷？","expected_terms":["二十四小時","撤銷"],"should_answer":true}
+{"name":"document-dedup","question":"系統如何避免同一份文件被重複索引？","expected_terms":["SHA-256","雜湊"],"should_answer":true}
+{"name":"provider-incident","question":"模型供應商失敗時可以直接完成請求嗎？","expected_terms":["Fallback","人工複核"],"should_answer":true}
+{"name":"prompt-release","question":"Prompt 候選版本發布前要比較哪些指標？","expected_terms":["拒答正確率","引用覆蓋率","中位延遲"],"should_answer":true}
+{"name":"out-of-scope","question":"下個月東京的每日天氣預報是什麼？","expected_terms":[],"should_answer":false}

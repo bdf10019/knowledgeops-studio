@@ -1,0 +1,92 @@
+{
+  "name": "KnowledgeOps - grounded request",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "knowledge-request",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Receive business question",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "knowledgeops-grounded-request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://api:8000/api/v1/requests",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "X-Demo-User", "value": "viewer" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { question: $json.body.question, collection_id: $json.body.collection_id, provider: $json.body.provider || 'mock', process_now: true } }}",
+        "options": {}
+      },
+      "id": "call-api",
+      "name": "Run governed AI workflow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [{ "leftValue": "={{ $json.needs_review }}", "rightValue": true, "operator": { "type": "boolean", "operation": "true", "singleValue": true } }],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "quality-gate",
+      "name": "Needs human review?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [520, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { status: 'review_required', request_id: $json.id, message: 'Evidence was insufficient; a reviewer must approve the answer.' } }}",
+        "options": { "responseCode": 202 }
+      },
+      "id": "review-response",
+      "name": "Return review handoff",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [790, -100]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { status: 'completed', request_id: $json.id, answer: $json.answer, citations: $json.citations_json, evidence_score: $json.evidence_score } }}",
+        "options": {}
+      },
+      "id": "answer-response",
+      "name": "Return grounded outcome",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [790, 100]
+    }
+  ],
+  "connections": {
+    "Receive business question": { "main": [[{ "node": "Run governed AI workflow", "type": "main", "index": 0 }]] },
+    "Run governed AI workflow": { "main": [[{ "node": "Needs human review?", "type": "main", "index": 0 }]] },
+    "Needs human review?": {
+      "main": [
+        [{ "node": "Return review handoff", "type": "main", "index": 0 }],
+        [{ "node": "Return grounded outcome", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "11111111-2222-4333-8444-555555555555",
+  "meta": { "templateCredsSetupCompleted": true },
+  "tags": []
+}

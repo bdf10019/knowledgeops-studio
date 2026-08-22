@@ -1,0 +1,15 @@
+.git
+.github
+.venv
+.env
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.coverage
+data
+outputs
+frontend/node_modules
+frontend/dist
+tests
