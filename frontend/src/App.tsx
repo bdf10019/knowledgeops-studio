@@ -310,7 +310,7 @@ export default function App() {
       <div className="brand"><div className="brand-mark"><Sparkles /></div><div><strong>KnowledgeOps</strong><span>STUDIO</span></div><button className="close-menu" onClick={() => setMobileOpen(false)} aria-label="關閉選單"><X /></button></div>
       <div className="workspace-label">工作空間</div><div className="workspace-card"><div>KS</div><span><strong>企業知識中樞</strong><small>Production demo</small></span></div>
       <nav aria-label="主選單">{navigation.map(({ id, label, icon: Icon }) => <button key={id} className={view === id ? 'active' : ''} onClick={() => { setView(id); setMobileOpen(false) }}><Icon size={19} /><span>{label}</span>{id === 'ask' && dashboard.review_queue > 0 && <b>{dashboard.review_queue}</b>}</button>)}</nav>
-      <div className="sidebar-foot"><div className="privacy-card"><ShieldCheck size={19} /><div><strong>資料邊界已啟用</strong><span>ACL · Audit · No training</span></div></div><span>v1.0.0 · Offline ready</span></div>
+      <div className="sidebar-foot"><div className="privacy-card"><ShieldCheck size={19} /><div><strong>資料邊界已啟用</strong><span>ACL · Audit · No training</span></div></div><span>v1.0.1 · Offline ready</span></div>
     </aside>
     {mobileOpen && <button className="backdrop" onClick={() => setMobileOpen(false)} aria-label="關閉選單" />}
     <main>

@@ -18,8 +18,11 @@ try {
 
     $oversized = @()
     foreach ($relativePath in $tracked) {
-        $absolutePath = Join-Path $projectRoot $relativePath
-        if ((Get-Item -LiteralPath $absolutePath).Length -gt 1MB) { $oversized += $relativePath }
+        # Inspect the staged Git blob instead of the checked-out path. This is
+        # consistent across Windows/Linux and is exactly what will be pushed.
+        $objectSize = git cat-file -s ":$relativePath"
+        if ($LASTEXITCODE -ne 0) { throw "Could not inspect tracked file: $relativePath" }
+        if ([long]$objectSize -gt 1MB) { $oversized += $relativePath }
     }
     if ($oversized.Count -gt 0) { Write-Error "Tracked files exceed 1 MiB: $($oversized -join ', ')" }
 
