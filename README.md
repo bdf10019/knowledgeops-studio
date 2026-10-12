@@ -1,5 +1,7 @@
 # KnowledgeOps Studio
 
+授權狀態：現行原創程式未另行授予通用開源授權；歷史版本與第三方／資料授權另見 [LICENSE_INFORMATION.md](LICENSE_INFORMATION.md)。
+
 一個可離線展示、也能接上真實模型的企業知識工作流平台。它把多模型 Gateway、
 Prompt 版本、RAG、文件治理、權限、人工審核與品質評測整合成一個可追溯的產品，
 重點不是「產生一段文字」，而是穩定交付有來源、有品質門檻、可追責的業務結果。
@@ -214,6 +216,6 @@ compose.yaml             PostgreSQL、Redis、API、worker、Web、選配 n8n
 
 ## 授權與資料來源
 
-本專案程式碼、範例知識文件及評測案例以 [MIT License](LICENSE) 釋出。直接相依套件與選配容器的
+現行原創程式未另行授予通用開源授權；歷史版本、範例與資料的授權狀態見 [授權說明](LICENSE_INFORMATION.md)。直接相依套件與選配容器的
 授權摘要見 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。大型資料集、模型權重、Key、Token、
 私人檔案與執行期資料皆不納入 Git。

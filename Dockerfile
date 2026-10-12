@@ -7,7 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 RUN useradd --create-home --uid 10001 knowledgeops
-COPY pyproject.toml README.md LICENSE ./
+COPY pyproject.toml README.md LICENSE_INFORMATION.md ./
 COPY backend ./backend
 COPY examples ./examples
 COPY alembic.ini ./
